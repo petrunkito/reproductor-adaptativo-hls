@@ -1,6 +1,6 @@
 const fs = require("fs")
 const { v4: uuidv4 } = require('uuid');
-
+let ffmpegScript = require("../utilities/ffmpeg")
 
 let controllerUploader = {}
 
@@ -15,7 +15,8 @@ controllerUploader.uploadFile = async (req, res) => {
             let element = filesUploads[file]
             elementsVideo.push({
                 name: element.name,
-                size: element.size
+                size: element.size,
+                key:file
             })
         })
 
@@ -23,23 +24,28 @@ controllerUploader.uploadFile = async (req, res) => {
 
         //!aurelio ya creamos los archivos, no hay necesidad de poner la extension
         //!hay que seguir con el otro proceso
-        
-        async function createFilesHLS() {
 
-            let fileName = videos.shift()
-            let nameFileSavedTemp = uuidv4()+fileName
-            let writableStream = fs.createWriteStream(`${__dirname}/../uploads/temp/${nameFileSavedTemp}`)
-            writableStream.write(Buffer.from(filesUploads[fileName].data))
+        async function createFilesHLS() {
+            let file = elementsVideo.shift()
+            // nameFileSavedTemp = uuidv4()
+            let nameFileSavedTemp = uuidv4()
+            let writableStream = fs.createWriteStream(`${__dirname}/../uploads/temporal/${nameFileSavedTemp}`)
+            writableStream.write(Buffer.from(filesUploads[file.key].data))
 
             let listName = []
             listName.push(nameFileSavedTemp)
-            if(videos.length) listName.push(...await createFilesHLS())
+            if(elementsVideo.length) listName.push(...await createFilesHLS())
             return listName
-        }``
+        }
         // console.log(elementsVideo)
 
         let listNameFiles = await createFilesHLS()
-        console.log("listNameFiles: ", listNameFiles)
+        console.log(listNameFiles[0])
+        for(let i=0;i<listNameFiles.length;i++){
+            await ffmpegScript(listNameFiles[i])
+        }
+
+
 
 
 

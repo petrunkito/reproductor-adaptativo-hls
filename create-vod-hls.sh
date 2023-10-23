@@ -11,10 +11,20 @@ renditions=(
 # resolution  bitrate  audio-rate
   "426x240    400k    128k"
   "640x360    800k     128k"
-  "842x480    1400k    192k"
-  "1280x720   2800k    192k"
-  "1920x1080  5000k    256k"
+  "842x480    1500k    192k"
+  "1280x720   2800k    200k"
+  "1920x1080  5500k    256k"
 )
+
+
+# renditions=(
+# # resolution  bitrate  audio-rate
+#   "426x240    400k    128k"
+#   "640x360    800k     128k"
+#   "842x480    1400k    192k"
+#   "1280x720   2800k    192k"
+#   "1920x1080  5000k    256k"
+# )
 
 segment_target_duration=10       # try to create a new segment every 10 seconds
 max_bitrate_ratio=1.07          # maximum accepted bitrate fluctuations
