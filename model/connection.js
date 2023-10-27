@@ -1,7 +1,8 @@
 let mongoose = require('mongoose')
 let dbConfig = require('../config/db.config.json')
 
-var MONGO_URL = process.env.MONGO_URL || `mongodb://${dbConfig.host}/${dbConfig.db}`
+var MONGO_URL = process.env.MONGO_URL || `mongodb://${dbConfig.local.host}/${dbConfig.local.db}`
+
 mongoose.connect(MONGO_URL)
 
 mongoose.connection.on('connected', function () {
@@ -17,7 +18,8 @@ mongoose.connection.on('disconnected', function () {
 })
 
 process.on('SIGINT', function () {
-    mongoose.connection.close(function () {
+    mongoose.connection.close()
+    .then(()=>{
         console.log('Desconectado de la base de datos al terminar la app')
         process.exit(0)
     })

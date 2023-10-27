@@ -1,17 +1,19 @@
 let mongoose = require('mongoose')
 
 let Schema = new mongoose.Schema({
+    folderName:{type:String, required:true},
     resolutions:[
-        {type:String, required:treu}
+        {type:String, required:true}
     ],
     fragments: [
         {
-            resolution:{type:String, required:true},
+            manifest:{type:String, required:true},
             files:[
                 {type:String, required:true}
             ]
         }
     ],
+
 })
 
 let Playlist = mongoose.model("Playlist", Schema)
