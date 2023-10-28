@@ -1,35 +1,21 @@
-let express = require("express")
-let cors = require("cors")
-let http = require("http")
-let fileUpload = require("express-fileupload")
-let routes = require("./routes/index")
+const express = require("express")//?para la construccion de la api
+const cors = require("cors")//?para habiliar que dominios pueden acceder a la aplicacion
+const http = require("http")//?para crear nuestro servidor
+const routes = require("./routes/index")//?aqui se encontraran las rutas de nuestras APIs
 
-// require("./utilities/eventCoordinator")
-const {EventEmitter} = require('events')
-const emitter = new EventEmitter();
-
-emitter.on("eventos",(data) => {
-    console.log('ejecutandose---->>>>')
-    // for (let i = 0; i < data.length; i++) {
-    //     ffmpegScript(listNameFiles[i])
-    // }
-})
-
-
-
+//?nos conectamos a mongodb
 require("./model/connection")
 
+//?creamos el servidor
 let app = express()
 let server = http.Server(app)
 
-app.use(fileUpload({
-    createParentPath:true
-}))
-app.use(express.static(`${__dirname}/public`))
-app.set("port", process.env.PORT || 3000)
-app.use(cors())
-app.use(express.json())
-app.use("/api",routes)
+app.use(express.static(`${__dirname}/public`))//?aqui servimos los archivos publicos
+app.set("port", process.env.PORT || 3000)//?vemos que puerto usaremos
+app.use(cors())//?de esta forma, todos los dominios pueden hacer peticiones a nuestro servidor
+app.use(express.json())//?para que formatee en json
+app.use("/api", routes)//?cada que accedan a la ruta de 'api', 
+
 
 module.exports = {server, app}
 
