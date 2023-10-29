@@ -1,3 +1,7 @@
+//*este modulo lo ocupamos para ejecutar acciones despues de otras, por ejemplo:
+//*si la subida de los archivos a terminado se dispoara el evento "uploadedFiles"
+//*indicando que se subieron los archivos, por ende el siguiente paso seria fragmentarlos
+
 //?traemos el modelo de File y Playlist, para insertar datos en la base de datos
 let modelFile = require("../model/modelFile")
 let modelPlaylist = require("../model/modelPlaylist")
@@ -40,16 +44,16 @@ emitter.on("uploadedFiles", async (data) => {
             ffmpegScript(data[i])
         }
     } catch (err) {
-        console.log("ocurrion un enorme error")
-        console.log(err)
-
+        console.log("eventCoorditanor emitter.on(uploadedFiles) err: ", err)
     }
 })
 
-//?el evento "hlsFilesCreated" se disparar una vez los formatos Hls de un video se crearon exitosamente
+//?el evento "hlsFilesCreated" se dispara una vez los formatos Hls de un video se crearon exitosamente,
+//?de talmodo, que el siguiente paso es crear los registros en la base de datos del modelo
+//?"File" y "Playlist" con la respectiva informacion del archivo y sus fragmentos creados
 emitter.on("hlsFilesCreated", async (data) => {
-
-    /*(data) es una variable que contiene el nombre de la carpeta del archivo fragmentado
+    try {
+        /*(data) es una variable que contiene el nombre de la carpeta del archivo fragmentado
         {
             name: 'video2.mp4',
             size: 783403,
@@ -58,134 +62,138 @@ emitter.on("hlsFilesCreated", async (data) => {
         }
     */
 
-    //?insertamos en la base de datos, los detalles del archivo fragmentado, como nombre del archivo, el nombre de la
-    //?carpeta donde se encuentran sus archivos fragmentados etc.
-    await modelFile.insertMany([{
-        nameFile: data.name,
-        size: data.size,
-        folderName: data.folderName
-    }])
+        //?insertamos en la base de datos, los detalles del archivo fragmentado, como nombre del archivo, el nombre de la
+        //?carpeta donde se encuentran sus archivos fragmentados etc.
+        await modelFile.insertMany([{
+            nameFile: data.name,
+            size: data.size,
+            folderName: data.folderName
+        }])
 
-    //?creamos un stream de lectura, para leer el archivo "playlist.m3u8", 
-    //!nota: el archivo "playlist.m3u8" es un archivo que contiene informacion hacerca de las resoluciones
-    //!en la que esta disponible un video, por ejemplo: 360, 480, etc...,
-    let readableStream = fs.createReadStream(`${paths.pathFile}/${data.folderName}/playlist.m3u8`)
+        //?creamos un stream de lectura, para leer el archivo "playlist.m3u8", 
+        //!nota: el archivo "playlist.m3u8" es un archivo que contiene informacion hacerca de las resoluciones
+        //!en la que esta disponible un video, por ejemplo: 360, 480, etc...,
+        let readableStream = fs.createReadStream(`${paths.pathFile}/${data.folderName}/playlist.m3u8`)
 
-    //?en esta variable se almacenara los datos que se insertaran en el model Playlist como:
-    /*
-      {
-        folderName,
-        resolutions,
-        fragments
-      }
-    */
-    let playlist = {}
-    playlist.folderName = data.folderName//?gurdamos el nombre de la carpeta inmediatamente en el objeto "playlist"
-
-    //?empezamos la lectura del archivo a travez de streams, y almacenamos cada pedazo en el arreglo
-    //?cunkPlaylist
-    let chunkPlaylist = []
-    readableStream.on("data", chunk => {
-        chunkPlaylist.push(chunk)
-    })
-
-
-    //?una vez la lectura termina, ejecutamos el siguiente callback
-    readableStream.on("end", async () => {
-        //?el metodo "concat" de la clase buffer, nos retorna un buffer, apartir de un arreglo de buffers asi:
+        //?en esta variable se almacenara los datos que se insertaran en el model Playlist como:
         /*
-           let buffers = [Buffer1, Buffer2, Buffer3]
-           let buffer Buffer.concat(buffers)
-         */
-        let file = Buffer.concat(chunkPlaylist)
-        //?convertimos a un string el buffer, ya que obtendremos los datos del archivo "playlist.m3u8".
-        let text = file.toString()
-        /*(text)
-            #EXTM3U
-            #EXT-X-VERSION:3
-            #EXT-X-STREAM-INF:BANDWIDTH=400000,RESOLUTION=426x240
-            240p.m3u8
-            #EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360
-            360p.m3u8
-         */
-        //?extraemos la resoluciones en la que estara cada version del video
-        playlist.resolutions = text.match(/(\d+x\d+)/gm)//[ '426x240', '640x360' ]
-        //?extraemos los manifiestos(los archivos con extension .m3u8) de cada resoluciones, para luego obtener
-        //?un registro de cuantos fragmentos hay para cada resolucion
-        let manifests = text.match(/\d+[a-zA-Z]?\.m3u8/gm)//[ '240p.m3u8', '360p.m3u8' ]
-
-        //?aqui guardaremos cuantas fragmentos hay para cada resolucion, el formato que seguiremos sera el siguiente:
-        /*(fragments)
-        [
-            {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
-            {manifests:"360p.m3u8", files:["360p_000.ts", "360p_001.ts", ...]}
-        ]
+          {
+            folderName,
+            resolutions,
+            fragments
+          }
         */
-        let fragments = []
+        let playlist = {}
+        playlist.folderName = data.folderName//?gurdamos el nombre de la carpeta inmediatamente en el objeto "playlist"
 
-        console.log("antes del bucle")
-        //?iteramossobre el arreglo "manifests" para iterar en cada uno de los archivos ".m3u8"
-        //?y asi obtener un listado con todos los archivos ".ts"
-        for (let i = 0; i < manifests.length; i++) {
-            let element = {}
-            element.manifest = manifests[i]
+        //?empezamos la lectura del archivo a travez de streams, y almacenamos cada pedazo en el arreglo
+        //?cunkPlaylist
+        let chunkPlaylist = []
+        readableStream.on("data", chunk => {
+            chunkPlaylist.push(chunk)
+        })
 
-            //?decidimos en este caso, usar el "readFileSync" ya que son archivos muy pequeños 
-            //?y no valdria la pena agregar mas complejidad usando streams, por eso los abrimos de manera sincrona
-            let file = fs.readFileSync(`${paths.pathFile}/${data.folderName}/${manifests[i]}`)
-            /*(file) nos mostraria un archivo parecido a esto:
+
+        //?una vez la lectura termina, ejecutamos el siguiente callback
+        readableStream.on("end", async () => {
+            //?el metodo "concat" de la clase buffer, nos retorna un buffer, apartir de un arreglo de buffers asi:
+            /*
+               let buffers = [Buffer1, Buffer2, Buffer3]
+               let buffer Buffer.concat(buffers)
+             */
+            let file = Buffer.concat(chunkPlaylist)
+            //?convertimos a un string el buffer, ya que obtendremos los datos del archivo "playlist.m3u8".
+            let text = file.toString()
+            /*(text)
                 #EXTM3U
                 #EXT-X-VERSION:3
-                #EXT-X-TARGETDURATION:10
-                #EXT-X-MEDIA-SEQUENCE:0
-                #EXT-X-PLAYLIST-TYPE:VOD
-                #EXTINF:10.010000,
-                240p_000.ts
-                #EXTINF:10.010000,
-                240p_001.ts
-                #EXTINF:10.010000,
-                240p_002.ts
-                #EXTINF:10.010000,
-                #EXT-X-ENDLIST
-            */
-            //?luego almacenamos en la propiedad "element.files" un listado de los fragmentos creados en el servidor
-            element.files = file.toString().match(/^[0-9p_]+\.ts$/gm)//?["240p_000.ts", "240p_001.ts", "240p_002.ts", ...etc]
-            //?y lo que almacenamos en "fragments" es un objeto como este:  {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
-            fragments.push(element)//? {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
-        }
-        //?una vez que conseguimos todos los archivos con extension ".ts" y el nombre del manifiesto "240p.m3u8", 360p.m3u8", ...etc.
-        playlist.fragments = fragments
-        /*(playlist) este es el contenido final del objeto "playlist"
-        folderName: 'a60f259f-d873-4935-b9bf-e5b63893d43f',
-        resolutions: [ '426x240', '640x360' ],
-        fragments: [
-        {
-            manifest: '240p.m3u8',
-            files: [
-            '240p_000.ts', '240p_001.ts', '240p_002.ts', '240p_003.ts',
-            '240p_004.ts', '240p_005.ts', '240p_006.ts', '240p_007.ts',
-            '240p_008.ts', '240p_009.ts', '240p_010.ts', '240p_011.ts',
-            '240p_012.ts', '240p_013.ts', '240p_014.ts', '240p_015.ts',
-            '240p_016.ts', '240p_017.ts', '240p_018.ts', '240p_019.ts',
-            '240p_020.ts'
-            ]
-        },
-        {
-            manifest: '360p.m3u8',
-            files: [
-            '360p_000.ts', '360p_001.ts', '360p_002.ts', '360p_003.ts',
-            '360p_004.ts', '360p_005.ts', '360p_006.ts', '360p_007.ts',
-            '360p_008.ts', '360p_009.ts', '360p_010.ts', '360p_011.ts',
-            '360p_012.ts', '360p_013.ts', '360p_014.ts', '360p_015.ts',
-            '360p_016.ts', '360p_017.ts', '360p_018.ts', '360p_019.ts',
-            '360p_020.ts'
-            ]
-        }
-        */
-       //?luego introducimos el registro en la base de datos
-        await modelPlaylist.insertMany([playlist])
-    })
+                #EXT-X-STREAM-INF:BANDWIDTH=400000,RESOLUTION=426x240
+                240p.m3u8
+                #EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360
+                360p.m3u8
+             */
+            //?extraemos la resoluciones en la que estara cada version del video
+            playlist.resolutions = text.match(/(\d+x\d+)/gm)//[ '426x240', '640x360' ]
+            //?extraemos los manifiestos(los archivos con extension .m3u8) de cada resoluciones, para luego obtener
+            //?un registro de cuantos fragmentos hay para cada resolucion
+            let manifests = text.match(/\d+[a-zA-Z]?\.m3u8/gm)//[ '240p.m3u8', '360p.m3u8' ]
 
+            //?aqui guardaremos cuantas fragmentos hay para cada resolucion, el formato que seguiremos sera el siguiente:
+            /*(fragments)
+            [
+                {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
+                {manifests:"360p.m3u8", files:["360p_000.ts", "360p_001.ts", ...]}
+            ]
+            */
+            let fragments = []
+
+            console.log("antes del bucle")
+            //?iteramossobre el arreglo "manifests" para iterar en cada uno de los archivos ".m3u8"
+            //?y asi obtener un listado con todos los archivos ".ts"
+            for (let i = 0; i < manifests.length; i++) {
+                let element = {}
+                element.resolution = playlist.resolutions[i]//?tambien agregamos us respectiva resolucion, para que luego la busqueda de los fragmentos sea mas facil
+                element.manifest = manifests[i]
+
+                //?decidimos en este caso, usar el "readFileSync" ya que son archivos muy pequeños 
+                //?y no valdria la pena agregar mas complejidad usando streams, por eso los abrimos de manera sincrona
+                let file = fs.readFileSync(`${paths.pathFile}/${data.folderName}/${manifests[i]}`)
+                /*(file) nos mostraria un archivo parecido a esto:
+                    #EXTM3U
+                    #EXT-X-VERSION:3
+                    #EXT-X-TARGETDURATION:10
+                    #EXT-X-MEDIA-SEQUENCE:0
+                    #EXT-X-PLAYLIST-TYPE:VOD
+                    #EXTINF:10.010000,
+                    240p_000.ts
+                    #EXTINF:10.010000,
+                    240p_001.ts
+                    #EXTINF:10.010000,
+                    240p_002.ts
+                    #EXTINF:10.010000,
+                    #EXT-X-ENDLIST
+                */
+                //?luego almacenamos en la propiedad "element.files" un listado de los fragmentos creados en el servidor
+                element.files = file.toString().match(/^[0-9p_]+\.ts$/gm)//?["240p_000.ts", "240p_001.ts", "240p_002.ts", ...etc]
+                //?y lo que almacenamos en "fragments" es un objeto como este:  {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
+                fragments.push(element)//? {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
+            }
+            //?una vez que conseguimos todos los archivos con extension ".ts" y el nombre del manifiesto "240p.m3u8", 360p.m3u8", ...etc.
+            playlist.fragments = fragments
+            /*(playlist) este es el contenido final del objeto "playlist"
+            folderName: 'a60f259f-d873-4935-b9bf-e5b63893d43f',
+            resolutions: [ '426x240', '640x360' ],
+            fragments: [
+            {
+                manifest: '240p.m3u8',
+                files: [
+                '240p_000.ts', '240p_001.ts', '240p_002.ts', '240p_003.ts',
+                '240p_004.ts', '240p_005.ts', '240p_006.ts', '240p_007.ts',
+                '240p_008.ts', '240p_009.ts', '240p_010.ts', '240p_011.ts',
+                '240p_012.ts', '240p_013.ts', '240p_014.ts', '240p_015.ts',
+                '240p_016.ts', '240p_017.ts', '240p_018.ts', '240p_019.ts',
+                '240p_020.ts'
+                ]
+            },
+            {
+                manifest: '360p.m3u8',
+                files: [
+                '360p_000.ts', '360p_001.ts', '360p_002.ts', '360p_003.ts',
+                '360p_004.ts', '360p_005.ts', '360p_006.ts', '360p_007.ts',
+                '360p_008.ts', '360p_009.ts', '360p_010.ts', '360p_011.ts',
+                '360p_012.ts', '360p_013.ts', '360p_014.ts', '360p_015.ts',
+                '360p_016.ts', '360p_017.ts', '360p_018.ts', '360p_019.ts',
+                '360p_020.ts'
+                ]
+            }
+            */
+            //?luego introducimos el registro en la base de datos
+            await modelPlaylist.insertMany([playlist])
+        })
+
+    } catch (err) {
+        console.log("eventCoorditanor emitter.on(hlsFilesCreated) err: ", err)
+    }
 })
 
 

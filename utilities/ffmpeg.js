@@ -1,3 +1,6 @@
+//*este modulo esta encargado de hacer posible la creacion de los archivos en el formato HLS o fragmentacion de los videos
+//*en diferentes resoluciones
+
 //?usamos el metodo "exec" para ejecutar el script "create-vod-hls.sh" que es el encargado de ejecutar las operaciones
 //?para fragmentar los videos
 const { exec } = require('child_process');
@@ -31,7 +34,7 @@ module.exports = async function createFormatsHls(data) {
   let destination = `${path.pathFile}/${fileName}`.replace(/\\/g, "/")
 
   //?lo que hacemos aqui es, ejecutar el siguiente comando:
-  //? create-vod-hls.sh temp/226-98n-47b(la ubicacion del archivo temporal) uploades/226-98n-47b(la ubicacion del nuevo archivo)
+  //? create-vod-hls.sh temp/226-98n-47b(la ubicacion del archivo temporal) uploades/226-98n-47b(la nueva ubicacion del los fragmentos)
   let textComand = `${path.crateVodHls} ${origin} ${destination}`
 
   //?una vez termine de crear todos los archivos Hls, se ejecutara el callback
@@ -40,7 +43,7 @@ module.exports = async function createFormatsHls(data) {
   exec(textComand, (error) => {
     //?si ocurre un error, mandamos el siguiente mensaje
     if (error) {
-      console.log("(ffmpeg.js unlink) ocurrio un error en la creacion los archivos HLS")
+      console.log("ffmpeg.js exec ocurrio un error en la creacion los archivos HLS")
     }
 
 

@@ -1,3 +1,6 @@
+//*cuando entren a la api (/api/uploader), este se encargara de procesar su archivo,
+//*almacenarlo, convertirlo y eliminar el archivo original despues
+
 //?cuando suben un archivo, este modulo se encarga de procesarlos y guardalos en la variable "req.files"
 const fileUpload = require("express-fileupload")
 //?utilizamos 'Router', para crear las diferentes metodos http con su respectiva ruta

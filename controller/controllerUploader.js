@@ -1,3 +1,4 @@
+//*este modulo se encarga de subir los archivos que nos envian a nuestro servidor
 //?para trabajar con el sistema de archivos
 const fs = require("fs")
 //?usamos este modulo para obtener un identificador unico, que sera usado como nombre del archivo a subir y su carpeta
@@ -13,6 +14,7 @@ const emitter = require("../utilities/eventCoordinator")
 
 let controllerUploader = {}
 
+//?sube uno o varios archivos al servidor
 controllerUploader.uploadFile = async (req, res) => {
     try {
 
@@ -119,7 +121,7 @@ controllerUploader.uploadFile = async (req, res) => {
         //!Nota:"una respuesta ok, no indica que el proceso se completo, si no que se recibio la peticion"
         return res.status(200).json({ ok: true, message: "proceso finalizado" })
     } catch (err) {
-        console.log(err)
+        console.log("controllerPlaylist uploadFile err: ", err)
         return res.status(500).json({ ok: false, message: "ocurrio un error en el servidor" })
     }
 }
