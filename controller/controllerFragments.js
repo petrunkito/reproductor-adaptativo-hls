@@ -11,8 +11,9 @@ controllerFragments.getFragments = async function (req, res) {
         //?recibimos el nombre de la carpeta del archivo
         let folderName = req.params.folderName
         //?en el body, necesitamos la resolucion y posicion del archivo que se va a solicitar
-        let { position = 0, resolution } = req.body
+        let { position = 0, resolution } = req.query
         if (!resolution) return res.status(400).json({ ok: false, message: "all fields are required" })//?si no envian la resolucion, mandamos este mensaje
+
 
 
         //?buscamos el documento en la base de datos, en caso de que no se encuentre el archivo
@@ -78,6 +79,7 @@ controllerFragments.getFragments = async function (req, res) {
         let readableStream = fs.createReadStream(`${paths.pathFile}/${folderName}/${data.files[position]}`)
         //!nota: el archivo que se manda, no se manda con su extension(.ts) sino como un archivo
         //!binario sin estension asi: video.ts --> video, sin ninguna extension!.
+
         return readableStream.pipe(res)
     } catch (err) {
         console.log("controllerFragment getFragments err: ", err)
