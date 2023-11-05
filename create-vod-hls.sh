@@ -41,7 +41,7 @@ fi
 mkdir -p ${target}
 
 # ----CUSTOM----
-sourceResolution="$(./ffmpeg/ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${source})"
+sourceResolution="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${source})"
 # echo ${sourceResolution}
 arrIN=(${sourceResolution//x/ })
 sourceWidth="${arrIN[0]}"
@@ -50,11 +50,11 @@ sourceHeight="${arrIN[1]}"
 echo ${sourceWidth}
 echo ${sourceHeight}
 
-sourceAudioBitRate="$(./ffmpeg/ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of csv=s=x:p=0 ${source})"
+sourceAudioBitRate="$(ffprobe -v error -select_streams a:0 -show_entries stream=bit_rate -of csv=s=x:p=0 ${source})"
 sourceAudioBitRateFormatted=$((sourceAudioBitRate / 1000))
 # ----END CUSTOM----
 
-key_frames_interval="$(echo `./ffmpeg/ffprobe ${source} 2>&1 | grep -oE '[[:digit:]]+(.[[:digit:]]+)? fps' | grep -oE '[[:digit:]]+(.[[:digit:]]+)?'`*2 | ./utilities/bc || echo '')"
+key_frames_interval="$(echo `ffprobe ${source} 2>&1 | grep -oE '[[:digit:]]+(.[[:digit:]]+)? fps' | grep -oE '[[:digit:]]+(.[[:digit:]]+)?'`*2 | ./utilities/bc || echo '')"
 key_frames_interval=${key_frames_interval:-50}
 key_frames_interval=$(echo `printf "%.1f\n" $(./utilities/bc -l <<<"$key_frames_interval/10")`*10 | ./utilities/bc) # round
 key_frames_interval=${key_frames_interval%.*} # truncate to integer
@@ -126,8 +126,8 @@ done
 
 if [ $resolutionValid -eq 1 ]; then
   # start conversion
-  echo -e "Executing command:\n./ffmpeg/ffmpeg ${misc_params} -i ${source} ${cmd}\n"
-  ./ffmpeg/ffmpeg ${misc_params} -i ${source} ${cmd}
+  echo -e "Executing command:\nffmpeg ${misc_params} -i ${source} ${cmd}\n"
+  ffmpeg ${misc_params} -i ${source} ${cmd}
   # create master playlist file
   echo -e "${master_playlist}" > ${target}/playlist.m3u8
   echo "Done - encoded HLS is at ${target}/"
