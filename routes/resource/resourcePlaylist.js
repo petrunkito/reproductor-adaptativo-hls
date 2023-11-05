@@ -9,6 +9,6 @@ let controllerPlaylist = require("../../controller/controllerPlaylist")
 //?obtiene la informacion de un documento
 routes.get("/", controllerPlaylist.getAll)
 //?con este metodo, obtenemos todos los documentos de la base de datos
-routes.get("/:id", controllerPlaylist.getOne)
+routes.get("/:folderName", controllerPlaylist.getOne)
 
 module.exports = routes

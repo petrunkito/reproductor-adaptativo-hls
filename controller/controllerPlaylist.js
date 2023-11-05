@@ -10,8 +10,8 @@ let controllerPlaylist = {}
 controllerPlaylist.getOne = async function(req, res){
     try{
         //?obtenemos el _id del recurso
-        let _id = req.params.id
-        let element = await modelPlaylist.findOne({_id})
+        let folderName = req.params.folderName
+        let element = await modelPlaylist.findOne({folderName})
         //?si el documento no se encuentra en la base de datos, ejecutamos la siguiente linea
         if(!element)  return res.status(404).json({ok:false, message:"resource not found"})
 
