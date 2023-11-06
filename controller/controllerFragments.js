@@ -14,8 +14,6 @@ controllerFragments.getFragments = async function (req, res) {
         let { position = 0, resolution } = req.query
         if (!resolution) return res.status(400).json({ ok: false, message: "all fields are required" })//?si no envian la resolucion, mandamos este mensaje
 
-
-
         //?buscamos el documento en la base de datos, en caso de que no se encuentre el archivo
         //?mandamos la respuest de archivo no encontrado
         let playlist = await modelPlaylist.findOne({ folderName })
@@ -30,9 +28,8 @@ controllerFragments.getFragments = async function (req, res) {
             resolution: '426x240',
             manifest: '240p.m3u8',
             files: [
-            '240p_000.ts', '240p_001.ts', '240p_002.ts', '240p_003.ts', '240p_004.ts', '240p_005.ts',
-            '240p_006.ts', '240p_007.ts',240p_008.ts', '240p_009.ts','240p_010.ts', '240p_011.ts',
-            '240p_012.ts', '240p_013.ts','240p_014.ts'
+            {'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, {'240p_002.ts':"10.001"},
+            {'240p_003.ts':"10.001"}, {'240p_004.ts':"10.001"}, {'240p_005.ts':"7.0023"}
             ],
             _id: ObjectId("653d9adeadcc11fbfd18d002")
         },
@@ -40,9 +37,8 @@ controllerFragments.getFragments = async function (req, res) {
             resolution: '640x360',
             manifest: '360p.m3u8',
             files: [
-            '360p_000.ts', '360p_001.ts', '360p_002.ts', '360p_003.ts', '360p_004.ts', '360p_005.ts',
-            '360p_006.ts', '360p_007.ts', '360p_008.ts', '360p_009.ts', '360p_010.ts', '360p_011.ts',
-            '360p_012.ts', '360p_013.ts', '360p_014.ts'
+            {'360p_000.ts':"10.001"}, {'360p_001.ts':"10.001"}, {'360p_002.ts':"10.001"},
+            {'360p_003.ts':"10.001"}, {'360p_004.ts':"10.001"}, {'360p_005.ts':"7.0023"}
             ],
             _id: ObjectId("653d9adeadcc11fbfd18d003")
         }
@@ -56,18 +52,18 @@ controllerFragments.getFragments = async function (req, res) {
         //?una vez revisamos que la resolucion esta disponible, la filtramos para trabajar con ella, y ya que filter me devuelve
         //?un array, mandamos a traer la posicion "0" para trabajar sobre el objeto
         let data = playlist.fragments.filter(element => element.resolution === resolution)[0]
+        console.log("data: ", data)
         /*(data) eston es lo que almacena data despues de filtrar
         {
-            resolution: '426x240',
-            manifest: '240p.m3u8',
-            files: [
-            '240p_000.ts', '240p_001.ts', '240p_002.ts', '240p_003.ts', '240p_004.ts', '240p_005.ts',
-            '240p_006.ts', '240p_007.ts',240p_008.ts', '240p_009.ts','240p_010.ts', '240p_011.ts',
-            '240p_012.ts', '240p_013.ts','240p_014.ts'
-            ],
-            _id: ObjectId("653d9adeadcc11fbfd18d002")
-        }
-        */
+                resolution: '426x240',
+                manifest: '240p.m3u8',
+                files: [
+                {'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, {'240p_002.ts':"10.001"},
+                {'240p_003.ts':"10.001"}, {'240p_004.ts':"10.001"}, {'240p_005.ts':"7.0023"}
+                ],
+                _id: ObjectId("653d9adeadcc11fbfd18d002")
+            }
+            */
 
         //?verificamos si la posicion del archivo que desean existe, en caso de que no exista el archivo
         //?en la posicion que desean, mandamos la siguiente respuesta
@@ -76,7 +72,7 @@ controllerFragments.getFragments = async function (req, res) {
         //?le indicamos al cliente con la cabecvera "application/octet-stream", que se le enviara un archivo binario
         res.writeHead(200, { "Content-Type": "application/octet-stream" })
         //?le envimos un flujo de datos al cliente
-        let readableStream = fs.createReadStream(`${paths.pathFile}/${folderName}/${data.files[position]}`)
+        let readableStream = fs.createReadStream(`${paths.pathFile}/${folderName}/${Object.keys(data.files[position])[0]}`)
         //!nota: el archivo que se manda, no se manda con su extension(.ts) sino como un archivo
         //!binario sin estension asi: video.ts --> video, sin ninguna extension!.
 
