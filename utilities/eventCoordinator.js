@@ -121,13 +121,12 @@ emitter.on("hlsFilesCreated", async (data) => {
             //?aqui guardaremos cuantas fragmentos hay para cada resolucion, el formato que seguiremos sera el siguiente:
             /*(fragments)
             [
-                {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
-                {manifests:"360p.m3u8", files:["360p_000.ts", "360p_001.ts", ...]}
+                {manifests:"240p.m3u8", files:[{240p_000.ts: '#EXTINF:10.010000'}, {240p_001.ts: '#EXTINF:10.010000'}, ...]},
+                {manifests:"360p.m3u8", files:[{360p_000.ts: '#EXTINF:10.010000'}, {360p_001.ts: '#EXTINF:10.010000'}, ...]}
             ]
             */
             let fragments = []
 
-            console.log("antes del bucle")
             //?iteramossobre el arreglo "manifests" para iterar en cada uno de los archivos ".m3u8"
             //?y asi obtener un listado con todos los archivos ".ts"
             for (let i = 0; i < manifests.length; i++) {
@@ -137,7 +136,7 @@ emitter.on("hlsFilesCreated", async (data) => {
 
                 //?decidimos en este caso, usar el "readFileSync" ya que son archivos muy pequeños 
                 //?y no valdria la pena agregar mas complejidad usando streams, por eso los abrimos de manera sincrona
-                let file = fs.readFileSync(`${paths.pathFile}/${data.folderName}/${manifests[i]}`)
+                let file = fs.readFileSync(`${paths.pathFile}/${data.folderName}/${manifests[i]}`).toString()
                 /*(file) nos mostraria un archivo parecido a esto:
                     #EXTM3U
                     #EXT-X-VERSION:3
@@ -153,8 +152,24 @@ emitter.on("hlsFilesCreated", async (data) => {
                     #EXTINF:10.010000,
                     #EXT-X-ENDLIST
                 */
+                //?obtenemos las duraciones en segundos de cada fragmento, primero usamos la funcion match para obtener el patron
+                //?el resultado es: ["#EXTINF:10.010000", "#EXTINF:10.010000", "#EXTINF:10.010000"], pero usamos el map
+                //?para editar el arreglo, para obtener esto: [10.010000, 10.010000, 10.010000], usando la funcion slice
+                //?que corta de una posicion a otra, y nos apoyamos de la funcion search, para obtener la posicion desde 
+                //?la que inicia el numero despues del ":".
+                let durations = file.match(/#EXTINF:\d+\.\d+/g).map(((element) => {
+                    return element.slice(element.search(/\d+\.\d+/), element.length)
+                }))
+                //?lo que hacemos aqui, es agregar a "element.files" un arreglo de objetos asi:[{ '360p_000.ts': '10.000000' },{ '360p_001.ts': '7.000000' }]
+                //?que contenga tanto el fragmento como la duracion de cada uno.
+                //?usamos match para conseguir un arreglo con cada fragmento asi: ["240p_000.ts", "240p_001.ts", "240p_002.ts"]
+                //?luego con "map" editamos ese arreglo para agregar el fragmento mas la resolucion asi: {"240p_000.ts":"10.10000"}
+                element.files = file.match(/^[0-9p_]+\.ts$/gm).map((element, index) => {
+                    let text = `{"${element}":"${durations[[index]]}"}`//?{"240p_000.ts":"10.10000"}
+                    return JSON.parse(text)//?usamos "JSON.parse" para convertir el string a un objeto javascript
+                })
                 //?luego almacenamos en la propiedad "element.files" un listado de los fragmentos creados en el servidor
-                element.files = file.toString().match(/^[0-9p_]+\.ts$/gm)//?["240p_000.ts", "240p_001.ts", "240p_002.ts", ...etc]
+                // element.files = file.toString().match(/^[0-9p_]+\.ts$/gm)//?["240p_000.ts", "240p_001.ts", "240p_002.ts", ...etc]
                 //?y lo que almacenamos en "fragments" es un objeto como este:  {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
                 fragments.push(element)//? {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
             }
@@ -167,34 +182,28 @@ emitter.on("hlsFilesCreated", async (data) => {
             {
                 manifest: '240p.m3u8',
                 files: [
-                '240p_000.ts', '240p_001.ts', '240p_002.ts', '240p_003.ts',
-                '240p_004.ts', '240p_005.ts', '240p_006.ts', '240p_007.ts',
-                '240p_008.ts', '240p_009.ts', '240p_010.ts', '240p_011.ts',
-                '240p_012.ts', '240p_013.ts', '240p_014.ts', '240p_015.ts',
-                '240p_016.ts', '240p_017.ts', '240p_018.ts', '240p_019.ts',
-                '240p_020.ts'
+                    {'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, {'240p_002.ts':"10.001"},
+                    {'240p_003.ts':"10.001"}, {'240p_004.ts':"10.001"}, {'240p_005.ts':"7.0023"}
                 ]
             },
             {
                 manifest: '360p.m3u8',
                 files: [
-                '360p_000.ts', '360p_001.ts', '360p_002.ts', '360p_003.ts',
-                '360p_004.ts', '360p_005.ts', '360p_006.ts', '360p_007.ts',
-                '360p_008.ts', '360p_009.ts', '360p_010.ts', '360p_011.ts',
-                '360p_012.ts', '360p_013.ts', '360p_014.ts', '360p_015.ts',
-                '360p_016.ts', '360p_017.ts', '360p_018.ts', '360p_019.ts',
-                '360p_020.ts'
+                    {'360p_000.ts':"10.001"}, {'360p_001.ts':"10.001"}, {'360p_002.ts':"10.001"},
+                    {'360p_003.ts':"10.001"}, {'360p_004.ts':"10.001"}, {'360p_005.ts':"7.0023"}
                 ]
             }
             */
             //?luego introducimos el registro en la base de datos
             await modelPlaylist.insertMany([playlist])
+            emitter.emit("successfullySavedRecord", data.folderName)
         })
 
     } catch (err) {
         console.log("eventCoorditanor emitter.on(hlsFilesCreated) err: ", err)
     }
 })
+
 
 
 module.exports = emitter
