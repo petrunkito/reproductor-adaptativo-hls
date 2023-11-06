@@ -9,8 +9,8 @@ let Schema = new mongoose.Schema({
         {
             resolution:{type:String, required:true},//?la resolucion que corresponde
             manifest:{type:String, required:true},//?su manifiesto en extension (.m3u8)
-            files:[//?los nombres de cada fragmento(.ts)
-                {type:String, required:true}
+            files:[//?los nombres de cada fragmento(.ts) junto con la duraccion correspondiente
+                // {type:String, required:true}
             ]
         }
     ],
@@ -26,20 +26,18 @@ let Schema = new mongoose.Schema({
         resolution: '426x240',
         manifest: '240p.m3u8',
         files: [
-          '240p_000.ts', '240p_001.ts','240p_002.ts', '240p_003.ts','240p_004.ts', '
-          240p_005.ts', '240p_006.ts', '240p_007.ts', '240p_008.ts', '240p_009.ts',
-          '240p_010.ts', '240p_011.ts','240p_012.ts', '240p_013.ts','240p_014.ts'
-        ],
+                {'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, {'240p_002.ts':"10.001"},
+                {'240p_003.ts':"10.001"}, {'240p_004.ts':"10.001"}, {'240p_005.ts':"7.0023"}
+                ],
         _id: ObjectId("653d9adeadcc11fbfd18d002")
       },
       {
         resolution: '640x360',
         manifest: '360p.m3u8',
         files: [
-          '360p_000.ts', '360p_001.ts', '360p_002.ts', '360p_003.ts', '360p_004.ts', 
-          '360p_005.ts', '360p_006.ts', '360p_007.ts', '360p_008.ts', '360p_009.ts',
-          '360p_010.ts', '360p_011.ts', '360p_012.ts', '360p_013.ts', '360p_014.ts'
-        ],
+                {'360p_000.ts':"10.001"}, {'360p_001.ts':"10.001"}, {'360p_002.ts':"10.001"},
+                {'360p_003.ts':"10.001"}, {'360p_004.ts':"10.001"}, {'360p_005.ts':"7.0023"}
+                ],
         _id: ObjectId("653d9adeadcc11fbfd18d003")
       }
     ],
