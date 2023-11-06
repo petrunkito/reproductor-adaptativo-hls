@@ -71,11 +71,15 @@ controllerFragments.getFragments = async function (req, res) {
 
         //?le indicamos al cliente con la cabecvera "application/octet-stream", que se le enviara un archivo binario
         res.writeHead(200, { "Content-Type": "application/octet-stream" })
-        //?le envimos un flujo de datos al cliente
-        let readableStream = fs.createReadStream(`${paths.pathFile}/${folderName}/${Object.keys(data.files[position])[0]}`)
+        
+        //?recordar que 'data.files[position]' nos devuelve esto: {"240p_000.ts":"10.0100"}, entonces para buscar el archivo
+        //?correctamente en nuestro servidor extraemos el nombre del fragmento con el siguiente codigo:
+        let fragment = Object.keys(data.files[position])[0]//?"240p_000.ts"
+        let readableStream = fs.createReadStream(`${paths.pathFile}/${folderName}/${fragment}`)
         //!nota: el archivo que se manda, no se manda con su extension(.ts) sino como un archivo
         //!binario sin estension asi: video.ts --> video, sin ninguna extension!.
 
+        //?le envimos un flujo de datos al cliente
         return readableStream.pipe(res)
     } catch (err) {
         console.log("controllerFragment getFragments err: ", err)
