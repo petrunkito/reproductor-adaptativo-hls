@@ -67,9 +67,9 @@ controllerFragments.getFragments = async function (req, res) {
 
         //?verificamos si la posicion del archivo que desean existe, en caso de que no exista el archivo
         //?en la posicion que desean, mandamos la siguiente respuesta
-        if (!data.files[position]) return res.status(404).json({ ok: false, message: "resource not found;" })
+        if (!data.files[position]) return res.status(404).json({ ok: false, message: "resource not found" })
 
-        //?le indicamos al cliente con la cabecvera "application/octet-stream", que se le enviara un archivo binario
+        //?le indicamos al cliente con la cabecera "application/octet-stream", que se le enviara un archivo binario
         res.writeHead(200, { "Content-Type": "application/octet-stream" })
         
         //?recordar que 'data.files[position]' nos devuelve esto: {"240p_000.ts":"10.0100"}, entonces para buscar el archivo

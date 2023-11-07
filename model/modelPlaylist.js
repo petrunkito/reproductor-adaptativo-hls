@@ -1,19 +1,19 @@
 let mongoose = require('mongoose')
 //?este es el model de nuestra coleccion "Playlist"
 let Schema = new mongoose.Schema({
-    folderName:{type:String, required:true},//?el nombre de la carpeta de los fragmentos
-    resolutions:[//?las resoluciones disponibles para el video
-        {type:String, required:true}
-    ],
-    fragments: [//?aqui guardaremos los detalles de los fragmentos de video
-        {
-            resolution:{type:String, required:true},//?la resolucion que corresponde
-            manifest:{type:String, required:true},//?su manifiesto en extension (.m3u8)
-            files:[//?los nombres de cada fragmento(.ts) junto con la duraccion correspondiente
-                // {type:String, required:true}
-            ]
-        }
-    ],
+  folderName: { type: String, required: true },//?el nombre de la carpeta de los fragmentos
+  resolutions: [//?las resoluciones disponibles para el video
+    { type: String, required: true }
+  ],
+  fragments: [//?aqui guardaremos los detalles de los fragmentos de video
+    {
+      resolution: { type: String, required: true },//?la resolucion que corresponde
+      manifest: { type: String, required: true },//?su manifiesto en extension (.m3u8)
+      files: [//?los nombres de cada fragmento(.ts) junto con la duraccion correspondiente
+
+      ]
+    }
+  ],
 })
 
 /* ejemplo de lo que se almacena

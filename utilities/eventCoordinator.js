@@ -168,10 +168,9 @@ emitter.on("hlsFilesCreated", async (data) => {
                     let text = `{"${element}":"${durations[[index]]}"}`//?{"240p_000.ts":"10.10000"}
                     return JSON.parse(text)//?usamos "JSON.parse" para convertir el string a un objeto javascript
                 })
-                //?luego almacenamos en la propiedad "element.files" un listado de los fragmentos creados en el servidor
-                // element.files = file.toString().match(/^[0-9p_]+\.ts$/gm)//?["240p_000.ts", "240p_001.ts", "240p_002.ts", ...etc]
-                //?y lo que almacenamos en "fragments" es un objeto como este:  {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
-                fragments.push(element)//? {manifests:"240p.m3u8", files:["240p_000.ts", "240p_001.ts", ...]},
+                
+                //?y lo que almacenamos en "fragments" es un objeto como este:  {manifests:"240p.m3u8", files:[{'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, ...]},
+                fragments.push(element)//? {manifests:"240p.m3u8", files:[{'240p_000.ts':"10.001"}, {'240p_001.ts':"10.001"}, ...]},
             }
             //?una vez que conseguimos todos los archivos con extension ".ts" y el nombre del manifiesto "240p.m3u8", 360p.m3u8", ...etc.
             playlist.fragments = fragments
