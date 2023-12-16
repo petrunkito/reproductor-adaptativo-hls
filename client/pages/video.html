@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/style-video.css" />
+    <script defer src="/js/video-html/mux.min.js"></script>
+    <script defer type="module" src="/js/video-html/index.js"></script>
+
+  </head>
+  <body>
+    <a class="return" href="/">Regresar</a>
+    <section>
+      <div class="video-container">
+
+        <div class="list-resolutions">
+          <template class="template-resolution">
+            <div class="resolution" data-pos="ee" data-resolution="" data-select=""></div>
+          </template>
+        </div>
+
+        <video autoplay src="" id="video"></video>
+
+        <div class="container-tool">
+
+          <div class="playback-bar">
+            <canvas id="canvas-buffer"></canvas>
+            <canvas id="canvas-progress"></canvas>
+          </div>
+
+
+          <div class="video-buttons">
+            <div class="button-group-one">
+              <img class="play-pause-button" data-play="play" src="/img/play.png" alt="">
+              <img class="volume-button" data-volume="on" src="/img/volumen.png" alt="">
+              <input class="volume-range" type="range" min="0" max="100" value="100" />
+            </div>
+
+            <div class="button-group-two">
+              <img class="resolution-button" src="/img/calidades.png" alt="">
+              <!-- <img class="maximize-button" src="/img/redimensionar.png" alt=""> -->
+              <p class="time-text">00:00/00:00</p>
+            </div>
+          </div>
+
+
+        </div> 
+      </div>
+    </section>
+    
+  </body>
+</html>

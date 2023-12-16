@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <script defer src="js/index.js" type="module"></script> -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <script defer src="/js/index-html/index.js" type="module"></script>
+    <style></style>
+  </head>
+  <body>
+
+    
+
+    <div class="container-ventana ocultar-ventana-upload">
+      <div class="window-upload ">
+        <div class="drag-salir">
+          <button class="exit-upload">X</button> 
+        </div>
+        <div class="drag-container">
+          <img  src="img/subir.gif" alt="">
+        </div>
+        <div class="drag-text">
+          <p class="drag-text-p">Sube un video al servidor</p>
+        </div>
+        <div class="drag-alert">
+          <p class="drag-alert-p"></p>
+        </div>
+        <div class="drag-buttons">
+            <button class="find-video">Buscar video</button>
+            <input style="display: none;" type="file" name="my-file" id="my-file">
+            <button class="upload-video inactive-botton-upload">Subir</button>
+        </div>
+      </div>
+    </div>
+    <!-- chat gpt, tengo este HTML, quiero que el div con la clase "nav", use flexbox, para los div con las clases
+    .upload-file y .search, quiero que estos div, esten uno a cada esquina, y que cada div, tenga una altura
+    de 80px, y que cuando se redimensione, quiero que cada div se ponga uno encima de otro, ucupando cada ucupando
+    el ancho total, y que todos los elementos dentro de estos div, se adapten -->
+
+    <nav class="nav">
+      <div class="search">
+        <div class="content-input" >
+          <input class="content-input-search_input" type="text" placeholder="Buscar" />
+        </div>
+        <div class="content-image img-limpiar">
+            <img width="24" height="35" src="/img/limpiar.png" alt="" />
+        </div>
+      </div>
+
+      <div class="upload-file">
+        <button>Subir archivo</button>
+      </div>
+    </nav>
+
+    <h1 class="notice hidden-notice">Sube un video😍</h1>
+    <div id="container-videos">
+        <template>
+          <a class="cover-video" href="/video?folderName=">
+            <figure class="container-content">
+              <div class="container-img">
+                <img class="main-image" src="img/play.jpg" />
+              </div>
+              <div class="container-info">
+                <p> </p>
+              </div>
+            </figure>
+          </a>
+        </template>
+    </div>
+
+    
+  </body>
+</html>
