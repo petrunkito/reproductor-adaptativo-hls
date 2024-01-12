@@ -1,0 +1,15 @@
+{
+  "name": "plataforma_video_adaptativo",
+  "version": "1.0.0",
+  "description": "una aplicacion que sube y reproduce videos en el formato hls",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Aurelio Antonio Obando Flores",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
