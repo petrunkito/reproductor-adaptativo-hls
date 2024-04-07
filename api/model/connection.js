@@ -14,7 +14,7 @@ mongoose.connection.on('connected', function () {
 //?se ejecutara cuando halla algun error en la conexion
 mongoose.connection.on('error', function (err) {
     console.log('failed to connect to database: ' + err)
-    mongoose.connection(MONGO_URL)//?si ocurrio un error al tratar de conectar a la base de datos lo volvemos a intentar
+    mongoose.connect(MONGO_URL)//?si ocurrio un error al tratar de conectar a la base de datos lo volvemos a intentar
 })
 //?se ejecutara cuando la base de datos se sierre o desconecte
 mongoose.connection.on('disconnected', function () {
