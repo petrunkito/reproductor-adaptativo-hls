@@ -1,10 +1,8 @@
-Reproductor Adaptativo
-======================
+## Comienzo rapido
 
-Dependencias:
+Antes de hacer cualquier accion en esta parte, te recomendamos leer el archivo README.md del inicio del proyecto.
 
-Para instalar las dependencias del proyecto, utilize el comando npm i
+para empezar de manera inmediata, utiliza la consola del sistema y ejecuta el siguiente comando "npm i" para instalar las dependencias del proyecto. una vez terminada las instalaciones, ejecuta el comando "nmp start" para levantar el proyecto en el puerto 5050.
 
-Por defecto, el front-end del proyecto, se ejecutara en el puerto 5050, para ejecutarlo solo use el comando npm start, y se 
-
-
+Luego dirigete al navegador y copia este link http://localhost:5050/ en la barra de direcciones.
+esto seria todo lo que tendrias que hacer hata el momento en esta parte del proyecto.
